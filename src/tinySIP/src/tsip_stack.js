@@ -283,7 +283,7 @@ function tsip_stack(s_realm, s_impi, s_impu_uri, s_proxy_cscf_host, i_proxy_cscf
     this.network.o_transport = null;
     this.network.s_transport = "ws";
     this.network.s_local_ip = null;
-    this.network.i_local_port = 0;
+    this.network.i_local_port = 45678;
     this.network.s_proxy_cscf_host = s_proxy_cscf_host;
     this.network.i_proxy_cscf_port = i_proxy_cscf_port;
     this.network.e_proxy_cscf_type = tsk_utils_have_webrtc4all() ? tsip_transport_type_e.UDP : tsip_transport_type_e.WS;
@@ -293,8 +293,8 @@ function tsip_stack(s_realm, s_impi, s_impu_uri, s_proxy_cscf_host, i_proxy_cscf
     this.network.e_proxy_outbound_type = this.network.e_proxy_cscf_type;
 
     this.network.aor = {};
-    this.network.aor.s_ip = null;
-    this.network.aor.i_port = 0;
+    this.network.aor.s_ip = document.getElementById("uip").innerHTML;
+    this.network.aor.i_port = 45678;
 
     /* === Security === */
     this.security = {};
@@ -361,6 +361,7 @@ tsip_stack.prototype.start = function () {
 
     this.e_state = tsip_transport_state_e.STARTING;
     this.signal(tsip_event_code_e.STACK_STARTING, "Stack starting");
+	tsk_utils_log_info(this.network.o_transport);
     return this.network.o_transport.start();
 }
 

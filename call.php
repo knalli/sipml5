@@ -94,7 +94,7 @@
     var sTransferNumber;
     var oRingTone, oRingbackTone;
     var oSipStack, oSipSessionRegister, oSipSessionCall, oSipSessionTransferCall;
-    var txtDisplayName, txtPrivateIdentity, txtPublicIdentity, txtPassword, txtRealm;
+    var txtDisplayName, txtPrivateIdentity, txtServer, txtPassword, txtRealm, txtPort, txtPath;
     var txtPhoneNumber;
     var btnCall, btnHangUp;
     var txtRegStatus, txtCallStatus;
@@ -110,9 +110,11 @@
     window.onload = function () {
         txtDisplayName = document.getElementById("txtDisplayName");
         txtPrivateIdentity = document.getElementById("txtPrivateIdentity");
-        txtPublicIdentity = document.getElementById("txtPublicIdentity");
+        txtServer = document.getElementById("txtServer");
         txtPassword = document.getElementById("txtPassword");
         txtRealm = document.getElementById("txtRealm");
+		txtPort = document.getElementById("txtPort");
+		txtPath = document.getElementById("txtPath");
 
         txtPhoneNumber = document.getElementById("txtPhoneNumber");
 
@@ -288,17 +290,11 @@
             var s_value;
             if ((s_value = window.localStorage.getItem('org.doubango.identity.display_name'))) txtDisplayName.value = s_value;
             if ((s_value = window.localStorage.getItem('org.doubango.identity.impi'))) txtPrivateIdentity.value = s_value;
-            if ((s_value = window.localStorage.getItem('org.doubango.identity.impu'))) txtPublicIdentity.value = s_value;
+            if ((s_value = window.localStorage.getItem('org.doubango.identity.impu'))) txtServer.value = s_value;
             if ((s_value = window.localStorage.getItem('org.doubango.identity.password'))) txtPassword.value = s_value;
             if ((s_value = window.localStorage.getItem('org.doubango.identity.realm'))) txtRealm.value = s_value;
-        }
-        else {
-            //txtDisplayName.value = "004";
-            //txtPrivateIdentity.value = "004";
-            //txtPublicIdentity.value = "sip:004@192.168.0.10";
-            //txtPassword.value = "d3sb7j4fb8";
-            //txtRealm.value = "192.168.0.10";
-            //txtPhoneNumber.value = "78";
+			if ((s_value = window.localStorage.getItem('org.doubango.identity.port'))) txtPort.value = s_value;
+			if ((s_value = window.localStorage.getItem('org.doubango.identity.path'))) txtPath.value = s_value;
         }
     };
 
@@ -306,9 +302,11 @@
         if (localStorage) {
             localStorage.setItem('org.doubango.identity.display_name', txtDisplayName.value);
             localStorage.setItem('org.doubango.identity.impi', txtPrivateIdentity.value);
-            localStorage.setItem('org.doubango.identity.impu', txtPublicIdentity.value);
+            localStorage.setItem('org.doubango.identity.impu', txtServer.value);
             localStorage.setItem('org.doubango.identity.password', txtPassword.value);
             localStorage.setItem('org.doubango.identity.realm', txtRealm.value);
+			localStorage.setItem('org.doubango.identity.port', txtPort.value);
+			localStorage.setItem('org.doubango.identity.path', txtPath.value);
         }
     };
 
@@ -317,14 +315,14 @@
         // catch exception for IE (DOM not ready)
         try {
             btnRegister.disabled = true;
-            if (!txtRealm.value || !txtPrivateIdentity.value || !txtPublicIdentity.value) {
+            if (!txtRealm.value || !txtPrivateIdentity.value || !txtServer.value) {
                 txtRegStatus.innerHTML = '<b>Please fill madatory fields (*)</b>';
                 btnRegister.disabled = false;
                 return;
             }
-            var o_impu = tsip_uri.prototype.Parse(txtPublicIdentity.value);
+            var o_impu = tsip_uri.prototype.Parse("sip:" + txtPrivateIdentity.value + "@" + txtServer.value);
             if (!o_impu || !o_impu.s_user_name || !o_impu.s_host) {
-                txtRegStatus.innerHTML = "<b>[" + txtPublicIdentity.value + "] is not a valid Public identity</b>";
+                txtRegStatus.innerHTML = "<b>[sip:" + txtPrivateIdentity.value + "@" + txtServer.value + "] is not a valid Public identity</b>";
                 btnRegister.disabled = false;
                 return;
             }
@@ -337,27 +335,8 @@
             // save credentials
             saveCredentials();
 
-            // create SIP stack
-            var i_port;
-            var s_proxy;
-
-            if (tsk_utils_have_webrtc4all()) {
-                // port and host will be updated using the result from DNS SRV(NAPTR(realm))
-                i_port = 5060;
-                s_proxy = txtRealm.value;
-            }
-            else {
-                // there are at least 5 servers running on the cloud on ports: 4062, 5062, 6062, 7062 and 8062
-                // we will connect to one of them and let the balancer to choose the right one (less connected sockets)
-                // each port can accept up to 65K connections which means that the cloud can manage 325K active connections
-                // the number of port will be increased or decreased based on the current trafic
-                i_port = 4062 + (((new Date().getTime()) % 5) * 1000);
-                s_proxy = "sipml5.org";
-            }
-
             // create a new SIP stack. Not mandatory as it's possible to reuse the same satck
-            // oSipStack = new tsip_stack(txtRealm.value, txtPrivateIdentity.value, txtPublicIdentity.value, s_proxy, i_port,
-	     oSipStack = new tsip_stack(txtRealm.value, txtPrivateIdentity.value, txtPublicIdentity.value, "192.168.99.2", "8088/ws",
+            oSipStack = new tsip_stack(txtRealm.value, txtPrivateIdentity.value, "sip:" + txtPrivateIdentity.value + "@" + txtServer.value, txtServer.value, txtPort.value + txtPath.value,
                                     tsip_stack.prototype.SetPassword(txtPassword.value),
                                     tsip_stack.prototype.SetDisplayName(txtDisplayName.value),
                                     //tsip_stack.prototype.SetProxyOutBound('192.168.0.9', 5060, tsip_transport_type_e.UDP), // uncomment to use SIP outbound proxy
@@ -955,21 +934,11 @@
                     <tr>
                         <td>
                             <label style="height: 100%">
-                                Private Identity<sup>*</sup>:</label>
+                                Identity<sup>*</sup>:</label>
                         </td>
                         <td>
                             <input type="text" style="width: 100%; height: 100%" id="txtPrivateIdentity" value=""
-                                placeholder="e.g. +33600000000" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label style="height: 100%">
-                                Public Identity<sup>*</sup>:</label>
-                        </td>
-                        <td>
-                            <input type="text" style="width: 100%; height: 100%" id="txtPublicIdentity" value=""
-                                placeholder="e.g. sip:+33600000000@doubango.org" />
+                                placeholder="e.g. 101" />
                         </td>
                     </tr>
                     <tr>
@@ -980,12 +949,38 @@
                             <input type="password" style="width: 100%; height: 100%" id="txtPassword" value="" />
                         </td>
                     </tr>
+					<tr>
+                        <td>
+                            <label style="height: 100%">
+                                WS-Server<sup>*</sup>:</label>
+                        </td>
+                        <td>
+                            <input type="text" style="width: 100%; height: 100%" id="txtServer" value=""
+                                placeholder="e.g. 192.168.99.2" />
+                        </td>
+                    </tr>
+					<tr>
+                        <td>
+                            <label style="height: 100%">WS-Port<sup>*</sup>:</label>
+                        </td>
+                        <td>
+                            <input type="text" style="width: 100%; height: 100%" id="txtPort" value="" placeholder="8088" />
+                        </td>
+                    </tr>
+					<tr>
+                        <td>
+                            <label style="height: 100%">WS-Path<sup>*</sup>:</label>
+                        </td>
+                        <td>
+                            <input type="text" style="width: 100%; height: 100%" id="txtPath" value="" placeholder="/ws" />
+                        </td>
+                    </tr>
                     <tr>
                         <td>
                             <label style="height: 100%">Realm<sup>*</sup>:</label>
                         </td>
                         <td>
-                            <input type="text" style="width: 100%; height: 100%" id="txtRealm" value="" placeholder="e.g. doubango.org" />
+                            <input type="text" style="width: 100%; height: 100%" id="txtRealm" value="" placeholder="e.g. asterisk" />
                         </td>
                     </tr>
                     <tr>
@@ -998,11 +993,6 @@
                     <tr>
                         <td colspan="3">
                             <p class="small"><sup>*</sup> <i>Mandatory Field</i></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="3">
-                            <a class="btn" href="http://code.google.com/p/sipml5/wiki/Public_SIP_Servers" target="_blank">Need SIP account?</a></p>
                         </td>
                     </tr>
                 </table>
@@ -1073,6 +1063,10 @@
             <!--embed id="WebRtc4npapi" type="application/w4a" width='1' height='1' style='visibility:hidden;' /-->
         </footer>
     </div>
+	
+	<!-- for getting the client IP address -->
+	<div style="visibility:hidden;" id="uip"><?php echo $_SERVER['REMOTE_ADDR']; ?></div>
+	
     <!-- /container -->
     <!-- Le javascript
     ================================================== -->
