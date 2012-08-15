@@ -315,7 +315,7 @@
         // catch exception for IE (DOM not ready)
         try {
             btnRegister.disabled = true;
-            if (!txtRealm.value || !txtPrivateIdentity.value || !txtServer.value) {
+            if (!txtRealm.value || !txtPrivateIdentity.value || !txtServer.value || !txtPort.value || !txtPath.value) {
                 txtRegStatus.innerHTML = '<b>Please fill madatory fields (*)</b>';
                 btnRegister.disabled = false;
                 return;
@@ -1094,19 +1094,6 @@
         For now we use msi installer as we don't have trusted certificate yet :(
     -->
     <!--object id="webrtc4ieLooper" classid="clsid:7082C446-54A8-4280-A18D-54143846211A" CODEBASE="http://sipml5.org/deploy/webrtc4all.CAB"> </object-->
-
-    <!-- GOOGLE ANALYTICS -->
-    <script type="text/javascript">
-        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-    </script>
-
-    <script type="text/javascript">
-        try {
-            var pageTracker = _gat._getTracker("UA-6868621-19");
-            pageTracker._trackPageview();
-        } catch (err) { }
-    </script>
 
 </body>
 </html>

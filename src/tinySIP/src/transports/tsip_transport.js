@@ -142,7 +142,8 @@ tsip_transport.prototype.stop = function () {
 
 tsip_transport.prototype.get_local_ip = function(){
     if(this.e_type == tsip_transport_type_e.WS || this.e_type == tsip_transport_type_e.WSS){
-        return "df7jal23ls0d.invalid";
+        //return "df7jal23ls0d.invalid";
+        return $("#uip").text();
     }
     else if(this.o_transport && this.o_transport.localIP){
         return this.o_transport.localIP;
