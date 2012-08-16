@@ -554,6 +554,18 @@
             divVideo.style.height = '0px';
         }
     }
+    
+    function ToggleVideoPreview() {
+    	if (tdVideo.style.height == '0px') {
+    		tdVideo.style.height = '340px';
+            o_elt_video.style.opacity = 1;
+    	} 
+    	else
+    	{
+    		tdVideo.style.height = '0px';
+    		o_elt_video.style.opacity = 0;
+    	}
+    }
 
     // Callback function for SIP Stacks
     function onSipEventStack(evt) {
@@ -985,7 +997,7 @@
                     </tr>
                     <tr>
                         <td colspan="2" align="right">
-                            <input type="button" class="btn-success" id="btnRegister" value="LogIn" disabled onclick='sipRegister();' />
+                            <input type="button" class="btn-success" id="btnRegister" value="Register" disabled onclick='sipRegister();' />
                             &nbsp;
                             <input type="button" class="btn-danger" id="btnUnRegister" value="LogOut" disabled onclick='sipUnRegister();' />
                         </td>
@@ -1012,6 +1024,7 @@
                     </tr>
                     <tr>
                         <td colspan="1" align="right">
+                            <input type="button" class="btn-primary" style="" id="btnVideoPreview" value="Video" onclick='ToggleVideoPreview();'/> &nbsp;
                             <input type="button" class="btn-primary" style="" id="btnCall" value="Call" onclick='sipCall();' disabled /> &nbsp;
                             <input type="button" class="btn-primary" style="" id="btnHangUp" value="HangUp" onclick='sipHangUp();' disabled />
                         </td>

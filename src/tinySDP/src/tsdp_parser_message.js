@@ -416,7 +416,6 @@ case 16:
 		tsk_utils_log_error("Failed to parse sdp message: " + s_str);
 		return null;
 	}
-	
 	return sdp_msg;
 }
 

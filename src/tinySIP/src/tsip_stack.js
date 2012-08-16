@@ -329,7 +329,6 @@ function tsip_stack(s_realm, s_impi, s_impu_uri, s_proxy_cscf_host, i_proxy_cscf
     this.o_layer_transport = new tsip_transport_layer(this);
 
     this.__set(Array.prototype.slice.call(arguments, 5));
-	console.debug(Array.prototype.slice.call(arguments, 5));
 }
 
 /**
